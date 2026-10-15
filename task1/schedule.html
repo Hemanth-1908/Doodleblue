@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Schedule - Campus Events</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-dark:          #06171a;
+            --primary-teal:     #092328;
+            --surface-teal:     #12544F;
+            --accent-emerald:   #2A835F;
+            --accent-sage:      #8BBB92;
+
+            --card-bg:          rgba(18, 84, 79, 0.22);
+            --card-border:      rgba(139, 187, 146, 0.16);
+            --glow-effect:      rgba(42, 131, 95, 0.22);
+            --text-primary:     #F3F9F5;
+            --text-secondary:   #A9C7B5;
+            --text-muted:       #749682;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            color: var(--text-primary);
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(circle at 15% 20%, rgba(42, 131, 95, 0.25) 0%, transparent 40%),
+                radial-gradient(circle at 85% 65%, rgba(18, 84, 79, 0.35) 0%, transparent 45%),
+                radial-gradient(circle at 50% 90%, rgba(9, 35, 40, 0.6) 0%, transparent 50%);
+            background-attachment: fixed;
+            line-height: 1.6;
+        }
+
+        a {
+            text-decoration: none;
+            color: var(--accent-sage);
+            transition: 0.25s ease;
+        }
+
+        h2 {
+            font-size: 28px;
+            margin-bottom: 6px;
+            color: var(--text-primary);
+            font-weight: 700;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 28px;
+            font-size: 15px;
+        }
+
+        /* NAVBAR */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 7%;
+            background: rgba(9, 35, 40, 0.65);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-bottom: 1px solid var(--card-border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .logo i {
+            color: var(--accent-sage);
+            font-size: 22px;
+        }
+
+        .links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .links a {
+            color: var(--text-secondary);
+            font-size: 14.5px;
+            font-weight: 500;
+            padding: 8px 14px;
+            border-radius: 8px;
+            transition: 0.3s ease;
+        }
+
+        .links a:hover {
+            color: #FFFFFF;
+            background: rgba(139, 187, 146, 0.12);
+        }
+
+        .links a.active {
+            color: #FFFFFF;
+            background: rgba(139, 187, 146, 0.2);
+            border: 1px solid rgba(139, 187, 146, 0.35);
+        }
+
+        /* HERO BANNER */
+        .banner {
+            padding: 70px 7%;
+            min-height: 240px;
+            display: flex;
+            align-items: center;
+            background:
+                linear-gradient(
+                    90deg,
+                    rgba(6, 23, 26, 0.95) 0%,
+                    rgba(9, 35, 40, 0.82) 55%,
+                    rgba(9, 35, 40, 0.45) 100%
+                ),
+                url("https://images.pexels.com/photos/34887674/pexels-photo-34887674/free-photo-of-historic-university-building-front-view.jpeg?auto=compress&w=1260&h=750&dpr=1")
+                center/cover no-repeat;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .banner div {
+            max-width: 580px;
+        }
+
+        .banner h1 {
+            color: #FFFFFF;
+            font-size: 40px;
+            line-height: 1.2;
+            margin-bottom: 14px;
+            font-weight: 800;
+        }
+
+        .banner p {
+            color: var(--text-secondary);
+            font-size: 15.5px;
+        }
+
+        /* CONTROLS (DAY TABS & SEARCH) */
+        .schedule-controls {
+            padding: 35px 7% 0;
+        }
+
+        .controls-wrapper {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 14px 20px;
+            border-radius: 12px;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        .day-tabs {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .day-btn {
+            background: transparent;
+            border: 1px solid var(--card-border);
+            color: var(--text-secondary);
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-size: 13.5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.25s ease;
+        }
+
+        .day-btn:hover {
+            color: #FFFFFF;
+            border-color: var(--accent-sage);
+            background: rgba(139, 187, 146, 0.1);
+        }
+
+        .day-btn.active {
+            background: var(--accent-emerald);
+            color: #FFFFFF;
+            border-color: var(--accent-emerald);
+            box-shadow: 0 2px 8px var(--glow-effect);
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(6, 23, 26, 0.6);
+            border: 1px solid var(--card-border);
+            padding: 8px 14px;
+            border-radius: 8px;
+        }
+
+        .search-box i {
+            color: var(--accent-sage);
+            font-size: 14px;
+        }
+
+        .search-box input {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #FFFFFF;
+            font-size: 14px;
+            width: 200px;
+        }
+
+        .search-box input::placeholder {
+            color: var(--text-muted);
+        }
+
+        /* SCHEDULE TIMELINE */
+        .section {
+            padding: 40px 7% 70px;
+        }
+
+        .timeline-container {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            margin-top: 10px;
+        }
+
+        .timeline-item {
+            display: grid;
+            grid-template-columns: 180px 1fr auto;
+            align-items: center;
+            gap: 24px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 22px 26px;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+            transition: all 0.3s ease;
+        }
+
+        .timeline-item:hover {
+            border-color: rgba(139, 187, 146, 0.45);
+            transform: translateX(4px);
+            box-shadow: 0 8px 25px rgba(42, 131, 95, 0.2);
+        }
+
+        .timeline-time {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .timeline-time .time {
+            font-size: 16px;
+            font-weight: 700;
+            color: #FFFFFF;
+        }
+
+        .timeline-time .duration {
+            font-size: 12.5px;
+            color: var(--accent-sage);
+        }
+
+        .timeline-content {
+            border-left: 2px solid rgba(139, 187, 146, 0.2);
+            padding-left: 24px;
+        }
+
+        .timeline-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 6px;
+        }
+
+        .timeline-content h3 {
+            font-size: 18px;
+            color: #FFFFFF;
+            font-weight: 700;
+        }
+
+        .timeline-content p {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .timeline-meta {
+            display: flex;
+            gap: 18px;
+            font-size: 13px;
+            color: var(--accent-sage);
+        }
+
+        .timeline-meta span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .tag {
+            display: inline-block;
+            color: var(--accent-sage);
+            background: rgba(42, 131, 95, 0.2);
+            border: 1px solid rgba(139, 187, 146, 0.25);
+            padding: 2px 10px;
+            border-radius: 14px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #2A835F 0%, #1c6648 100%);
+            color: #FFFFFF;
+            padding: 9px 18px;
+            font-size: 13.5px;
+            font-weight: 600;
+            border-radius: 8px;
+            box-shadow: 0 4px 18px var(--glow-effect);
+            border: 1px solid rgba(139, 187, 146, 0.3);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            background: linear-gradient(135deg, #329970 0%, #227956 100%);
+            color: #FFFFFF;
+        }
+
+        /* MODAL POPUP */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(3, 15, 17, 0.85);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            padding: 20px;
+        }
+
+        .modal-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-card {
+            background: #092328;
+            border: 1px solid var(--accent-sage);
+            border-radius: 16px;
+            max-width: 550px;
+            width: 100%;
+            padding: 28px;
+            position: relative;
+            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.6);
+            transform: scale(0.92);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.open .modal-card {
+            transform: scale(1);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 18px;
+            right: 20px;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 24px;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+        .modal-close:hover {
+            color: #FFFFFF;
+        }
+
+        .modal-tag {
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        .modal-card h2 {
+            font-size: 22px;
+            color: #FFFFFF;
+            margin-bottom: 12px;
+        }
+
+        .modal-meta-box {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            background: rgba(18, 84, 79, 0.25);
+            border: 1px solid var(--card-border);
+            padding: 14px;
+            border-radius: 10px;
+            margin-bottom: 16px;
+            font-size: 13.5px;
+            color: var(--accent-sage);
+        }
+
+        .modal-meta-box div {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .modal-desc {
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 22px;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .confirm-btn {
+            background: var(--accent-emerald);
+            border: none;
+        }
+
+        .status-msg {
+            display: none;
+            text-align: center;
+            padding: 12px;
+            background: rgba(42, 131, 95, 0.25);
+            border: 1px solid var(--accent-sage);
+            border-radius: 8px;
+            color: #FFFFFF;
+            font-size: 14px;
+            margin-top: 12px;
+        }
+
+        /* NO RESULTS */
+        .no-results {
+            display: none;
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+            font-size: 16px;
+            background: var(--card-bg);
+            border: 1px dashed var(--card-border);
+            border-radius: 12px;
+        }
+
+        /* FOOTER */
+        .footer {
+            text-align: center;
+            padding: 45px 7% 20px;
+            background: #041013;
+            border-top: 1px solid var(--card-border);
+            color: var(--text-secondary);
+        }
+
+        .footer h3 {
+            color: #FFFFFF;
+            font-size: 18px;
+            margin-bottom: 6px;
+        }
+
+        .footer p {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .footer-links, .social {
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 24px;
+        }
+
+        .footer-links a, .social a {
+            color: var(--text-secondary);
+            font-size: 14px;
+            transition: 0.3s ease;
+        }
+
+        .footer-links a:hover, .social a:hover {
+            color: var(--accent-sage);
+        }
+
+        .copyright {
+            border-top: 1px solid rgba(139, 187, 146, 0.1);
+            padding-top: 18px;
+            margin-top: 20px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 850px) {
+            .timeline-item {
+                grid-template-columns: 1fr;
+                gap: 14px;
+            }
+
+            .timeline-content {
+                border-left: none;
+                padding-left: 0;
+                border-top: 1px solid rgba(139, 187, 146, 0.15);
+                padding-top: 14px;
+            }
+
+            .timeline-item .button {
+                align-self: flex-start;
+            }
+
+            .modal-meta-box {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .navbar {
+                flex-direction: column;
+                gap: 15px;
+            }
+            .links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            .controls-wrapper {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .search-box input {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- NAVBAR -->
+    <header class="navbar">
+        <a href="index.html" class="logo">
+            <i class="bi bi-mortarboard-fill"></i>
+            Campus Events
+        </a>
+
+        <nav class="links">
+            <a href="index.html">Home</a>
+            <a href="about.html">About</a>
+            <a href="events.html">Events</a>
+            <a href="schedule.html" class="active">Schedule</a>
+            <a href="register.html">Register</a>
+        </nav>
+    </header>
+
+    <!-- HERO BANNER -->
+    <section class="banner">
+        <div>
+            <h1>Event Schedule & Timetable</h1>
+            <p>Plan your day and never miss out on key sessions, matches, and performances.</p>
+        </div>
+    </section>
+
+    <!-- CONTROLS -->
+    <section class="schedule-controls">
+        <div class="controls-wrapper">
+            <div class="day-tabs">
+                <button class="day-btn active" data-day="day1">Day 1 • Oct 15</button>
+                <button class="day-btn" data-day="day2">Day 2 • Oct 20</button>
+                <button class="day-btn" data-day="day3">Day 3 • Oct 28</button>
+            </div>
+            <div class="search-box">
+                <i class="bi bi-search"></i>
+                <input type="text" id="scheduleSearch" placeholder="Search sessions or venues...">
+            </div>
+        </div>
+    </section>
+
+    <!-- SCHEDULE LIST -->
+    <section class="section">
+        <h2>Sessions & Activities</h2>
+        <p class="subtitle" id="daySubtitle">Showing schedule for Day 1 — Technical Inauguration & Competitions</p>
+
+        <div class="timeline-container" id="timelineContainer">
+
+            <!-- Day 1 Items -->
+            <div class="timeline-item" data-day="day1">
+                <div class="timeline-time">
+                    <span class="time">09:00 AM</span>
+                    <span class="duration"><i class="bi bi-clock"></i> 1 hr</span>
+                </div>
+                <div class="timeline-content">
+                    <div class="timeline-header">
+                        <span class="tag">Inauguration</span>
+                        <h3>Welcome Keynote & Lamp Lighting</h3>
+                    </div>
+                    <p>Official opening ceremony with welcome address by University Dean and guest speakers.</p>
+                    <div class="timeline-meta">
+                        <span><i class="bi bi-geo-alt"></i> Main Auditorium</span>
+                        <span><i class="bi bi-people"></i> Open to All</span>
+                    </div>
+                </div>
+                <button class="button action-btn"
+                    data-title="Welcome Keynote & Lamp Lighting"
+                    data-category="Inauguration"
+                    data-time="09:00 AM - 10:00 AM"
+                    data-venue="Main Auditorium"
+                    data-eligibility="Open to all Students & Faculty"
+                    data-desc="Join us for the commencement of our annual campus fest. The inaugural ceremony includes lamp lighting, a special address by the Vice-Chancellor, and keynote presentations by industry veterans.">
+                    Attend <i class="bi bi-arrow-right"></i>
+                </button>
+            </div>
+
+            <div class="timeline-item" data-day="day1">
+                <div class="timeline-time">
+                    <span class="time">10:30 AM</span>
+                    <span class="duration"><i class="bi bi-clock"></i> 24 hrs</span>
+                </div>
+                <div class="timeline-content">
+                    <div class="timeline-header">
+                        <span class="tag">Technical</span>
+                        <h3>Flagship Hackathon Kickoff</h3>
+                    </div>
+                    <p>Teams receive problem statements in Web3, AI, and Sustainability to build overnight.</p>
+                    <div class="timeline-meta">
+                        <span><i class="bi bi-geo-alt"></i> Tech Innovation Lab</span>
+                        <span><i class="bi bi-laptop"></i> Registered Teams</span>
+                    </div>
+                </div>
+                <button class="button action-btn"
+                    data-title="Flagship Hackathon Kickoff"
+                    data-category="Technical"
+                    data-time="10:30 AM (24-Hour Continuous)"
+                    data-venue="Tech Innovation Lab, Block C"
+                    data-eligibility="Registered teams (2-4 members)"
+                    data-desc="Hackers will be briefed on real-world challenge tracks. High-speed Wi-Fi, mentorship checkpoints, refreshments, and hardware testing kits are provided.">
+                    Join <i class="bi bi-arrow-right"></i>
+                </button>
+            </div>
+
+            <div class="timeline-item" data-day="day1">
+                <div class="timeline-time">
+                    <span class="time">02:00 PM</span>
+                    <span class="duration"><i class="bi bi-clock"></i> 2.5 hrs</span>
+                </div>
+                <div class="timeline-content">
+                    <div class="timeline-header">
+                        <span class="tag">Workshops</span>
+                        <h3>Machine Learning Model Deployment</h3>
+                    </div>
+                    <p>Hands-on session covering fine-tuning open models and containerizing Flask/FastAPI servers.</p>
+                    <div class="timeline-meta">
+                        <span><i class="bi bi-geo-alt"></i> CS Seminar Hall 2</span>
+                        <span><i class="bi bi-person-badge"></i> Bring Laptop</span>
+                    </div>
+                </div>
+                <button class="button action-btn"
+                    data-title="Machine Learning Model Deployment"
+                    data-category="Workshops"
+                    data-time="02:00 PM - 04:30 PM"
+                    data-venue="CS Seminar Hall 2"
+                    data-eligibility="Undergraduate / Post-Graduate Students"
+                    data-desc="Learn production machine learning workflows: containerizing models using Docker, creating FastAPI endpoints, and deploying to cloud infrastructure.">
+                    Join <i class="bi bi-arrow-right"></i>
+                </button>
+            </div>
+
+            <!-- Day 2 Items -->
+            <div class="timeline-item" data-day="day2" style="display: none;">
+                <div class="timeline-time">
+                    <span class="time">10:00 AM</span>
+                    <span class="duration"><i class="bi bi-clock"></i> 2 hrs</span>
+                </div>
+                <div class="timeline-content">
+                    <div class="timeline-header">
+                        <span class="tag">Cultural</span>
+                        <h3>Classical & Fusion Dance Showcase</h3>
+                    </div>
+                    <p>Inter-department solo and group traditional dance choreography competitions.</p>
+                    <div class="timeline-meta">
+                        <span><i class="bi bi-geo-alt"></i> Main Campus Hall</span>
+                        <span><i class="bi bi-music-note-beamed"></i> Live Music</span>
+                    </div>
+                </div>
+                <button class="button action-btn"
+                    data-title="Classical & Fusion Dance Showcase"
+                    data-category="Cultural"
+                    data-time="10:00 AM - 12:00 PM"
+                    data-venue="Main Campus Hall"
+                    data-eligibility="Audience & Registered Performers"
+                    data-desc="Witness dazzling classical, semi-classical, and contemporary fusion routines from student dance troupes competing for the departmental trophy.">
+                    Attend <i class="bi bi-arrow-right"></i>
+                </button>
+            </div>
+
+            <div class="timeline-item" data-day="day2" style="display: none;">
+                <div class="timeline-time">
+                    <span class="time">03:00 PM</span>
+                    <span class="duration"><i class="bi bi-clock"></i> 3 hrs</span>
+                </div>
+                <div class="timeline-content">
+                    <div class="timeline-header">
+                        <span class="tag">Cultural</span>
+                        <h3>Theatrics & Street Play (Nukkad Natak)</h3>
+                    </div>
+                    <p>Socially conscious and entertaining drama performances by campus theatre clubs.</p>
+                    <div class="timeline-meta">
+                        <span><i class="bi bi-geo-alt"></i> Amphitheatre Circle</span>
+                        <span><i class="bi bi-megaphone"></i> Open Stage</span>
+                    </div>
+                </div>
+                <button class="button action-btn"
+                    data-title="Theatrics & Street Play"
+                    data-category="Cultural"
+                    data-time="03:00 PM - 06:00 PM"
+                    data-venue="Amphitheatre Circle"
+                    data-eligibility="Open to all attendees"
+                    data-desc="High-energy street drama performances blending rhythmic percussion, thought-provoking dialogue, and social awareness themes.">
+                    Attend <i class="bi bi-arrow-right"></i>
+                </button>
+            </div>
+
+            <div class="timeline-item" data-day="day2" style="display: none;">
+                <div class="timeline-time">
+                    <span class="time">06:30 PM</span>
+                    <span class="duration"><i class="bi bi-clock"></i> 3.5 hrs</span>
+                </div>
+                <div class="timeline-content">
+                    <div class="timeline-header">
+                        <span class="tag">Cultural</span>
+                        <h3>Battle of the Bands & DJ Night</h3>
+                    </div>
+                    <p>High-energy campus bands competing live, followed by an electronic dance music set.</p>
+                    <div class="timeline-meta">
+                        <span><i class="bi bi-geo-alt"></i> Central Grounds</span>
+                        <span><i class="bi bi-stars"></i> Food Stalls Open</span>
+                    </div>
+                </div>
+                <button class="button action-btn"
+                    data-title="Battle of the Bands & DJ Night"
+                    data-category="Cultural"
+                    data-time="06:30 PM - 10:00 PM"
+                    data-venue="Central Grounds Arena"
+                    data-eligibility="College ID Required"
+                    data-desc="Rock out to competitive electric sets from six finalist university bands, followed by our headline guest DJ performance.">
+                    Attend <i class="bi bi-arrow-right"></i>
+                </button>
+            </div>
+
+            <!-- Day 3 Items -->
+            <div class="timeline-item" data-day="day3" style="display: none;">
+                <div class="timeline-time">
+                    <span class="time">08:00 AM</span>
+                    <span class="duration"><i class="bi bi-clock"></i> 3 hrs</span>
+                </div>
+                <div class="timeline-content">
+                    <div class="timeline-header">
+                        <span class="tag">Sports</span>
+                        <h3>Track & Field Sprint Finals (100m, 400m)</h3>
+                    </div>
+                    <p>Men's and women's athletic championship heats and 4x100m relay qualifiers.</p>
+                    <div class="timeline-meta">
+                        <span><i class="bi bi-geo-alt"></i> Athletic Running Track</span>
+                        <span><i class="bi bi-trophy"></i> Finals</span>
+                    </div>
+                </div>
+                <button class="button action-btn"
+                    data-title="Track & Field Sprint Finals"
+                    data-category="Sports"
+                    data-time="08:00 AM - 11:00 AM"
+                    data-venue="Athletic Running Track"
+                    data-eligibility="Open Spectators & Finalists"
+                    data-desc="Final qualifying heats and medal races for men's and women's 100m, 400m sprints, followed by the grand 4x100m inter-departmental relay.">
+                    Attend <i class="bi bi-arrow-right"></i>
+                </button>
+            </div>
+
+            <div class="timeline-item" data-day="day3" style="display: none;">
+                <div class="timeline-time">
+                    <span class="time">11:30 AM</span>
+                    <span class="duration"><i class="bi bi-clock"></i> 2.5 hrs</span>
+                </div>
+                <div class="timeline-content">
+                    <div class="timeline-header">
+                        <span class="tag">Sports</span>
+                        <h3>Inter-College Football Final</h3>
+                    </div>
+                    <p>The culminating match of the tournament between the top two seeded college rosters.</p>
+                    <div class="timeline-meta">
+                        <span><i class="bi bi-geo-alt"></i> Main Football Stadium</span>
+                        <span><i class="bi bi-trophy"></i> Trophy Round</span>
+                    </div>
+                </div>
+                <button class="button action-btn"
+                    data-title="Inter-College Football Final"
+                    data-category="Sports"
+                    data-time="11:30 AM - 02:00 PM"
+                    data-venue="Main Football Stadium"
+                    data-eligibility="Open Spectator Seating"
+                    data-desc="Championship finals between the reigning tournament champions and the top regional challengers. Live commentary and fan zones.">
+                    Attend <i class="bi bi-arrow-right"></i>
+                </button>
+            </div>
+
+            <div class="timeline-item" data-day="day3" style="display: none;">
+                <div class="timeline-time">
+                    <span class="time">04:30 PM</span>
+                    <span class="duration"><i class="bi bi-clock"></i> 2 hrs</span>
+                </div>
+                <div class="timeline-content">
+                    <div class="timeline-header">
+                        <span class="tag">Ceremony</span>
+                        <h3>Awards Gala & Closing Ceremony</h3>
+                    </div>
+                    <p>Felicitation of winners across all events with cash prizes, trophies, and closing speeches.</p>
+                    <div class="timeline-meta">
+                        <span><i class="bi bi-geo-alt"></i> Main Auditorium</span>
+                        <span><i class="bi bi-award"></i> Prize Distribution</span>
+                    </div>
+                </div>
+                <button class="button action-btn"
+                    data-title="Awards Gala & Closing Ceremony"
+                    data-category="Ceremony"
+                    data-time="04:30 PM - 06:30 PM"
+                    data-venue="Main Auditorium"
+                    data-eligibility="Open to all Participants"
+                    data-desc="The grand finale celebrating all winning teams, individual achievements, student committee appreciation, and official event closing ceremony.">
+                    Attend <i class="bi bi-arrow-right"></i>
+                </button>
+            </div>
+
+            <!-- No results banner -->
+            <div class="no-results" id="noResults">
+                <i class="bi bi-calendar-x" style="font-size: 28px; margin-bottom: 8px; display: inline-block;"></i>
+                <p>No scheduled activities found for this query.</p>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- SCHEDULE DETAILS / RSVP MODAL -->
+    <div class="modal-overlay" id="sessionModal">
+        <div class="modal-card">
+            <button class="modal-close" id="modalClose">&times;</button>
+            <span class="tag modal-tag" id="modalCategory">Category</span>
+            <h2 id="modalTitle">Session Title</h2>
+
+            <div class="modal-meta-box">
+                <div><i class="bi bi-clock"></i> <span id="modalTime">Time</span></div>
+                <div><i class="bi bi-geo-alt"></i> <span id="modalVenue">Venue</span></div>
+                <div style="grid-column: 1 / -1;"><i class="bi bi-person-check"></i> <span id="modalEligibility">Eligibility</span></div>
+            </div>
+
+            <p class="modal-desc" id="modalDesc">Session details description.</p>
+
+            <div class="modal-actions">
+                <button class="button confirm-btn" id="confirmRsvpBtn">
+                    Confirm Seat / Add to Calendar <i class="bi bi-check2-circle"></i>
+                </button>
+                <a href="register.html" class="button">Full Registration <i class="bi bi-arrow-right"></i></a>
+            </div>
+
+            <div class="status-msg" id="statusMsg">
+                <i class="bi bi-patch-check-fill"></i> Spot successfully reserved! Added to your schedule pass.
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <h3><i class="bi bi-mortarboard-fill"></i> Campus Events</h3>
+        <p>Bringing students together through campus activities.</p>
+
+        <div class="footer-links">
+            <a href="index.html">Home</a>
+            <a href="about.html">About</a>
+            <a href="events.html">Events</a>
+            <a href="schedule.html">Schedule</a>
+            <a href="register.html">Register</a>
+        </div>
+
+        <div class="social">
+            <a href="#" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+            <a href="#" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+            <a href="#" aria-label="LinkedIn"><i class="bi bi-linkedin"></i></a>
+        </div>
+
+        <p class="copyright">&copy; 2026 Campus Events. All rights reserved.</p>
+    </footer>
+
+    <!-- INTERACTIVITY JAVASCRIPT -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const dayBtns = document.querySelectorAll(".day-btn");
+            const searchInput = document.getElementById("scheduleSearch");
+            const items = document.querySelectorAll(".timeline-item");
+            const noResults = document.getElementById("noResults");
+            const daySubtitle = document.getElementById("daySubtitle");
+
+            let currentDay = "day1";
+
+            const subtitles = {
+                day1: "Showing schedule for Day 1 — Technical Inauguration & Competitions",
+                day2: "Showing schedule for Day 2 — Cultural Performances & Arts",
+                day3: "Showing schedule for Day 3 — Athletic Finals & Awards Gala"
+            };
+
+            function filterTimeline() {
+                const query = searchInput.value.toLowerCase().trim();
+                let visibleCount = 0;
+
+                items.forEach(item => {
+                    const itemDay = item.getAttribute("data-day");
+                    const title = item.querySelector("h3").textContent.toLowerCase();
+                    const desc = item.querySelector("p").textContent.toLowerCase();
+                    const meta = item.querySelector(".timeline-meta").textContent.toLowerCase();
+
+                    const matchesDay = (query.length > 0) ? true : (itemDay === currentDay);
+                    const matchesSearch = title.includes(query) || desc.includes(query) || meta.includes(query);
+
+                    if (matchesDay && matchesSearch) {
+                        item.style.display = "grid";
+                        visibleCount++;
+                    } else {
+                        item.style.display = "none";
+                    }
+                });
+
+                noResults.style.display = visibleCount === 0 ? "block" : "none";
+            }
+
+            dayBtns.forEach(btn => {
+                btn.addEventListener("click", () => {
+                    dayBtns.forEach(b => b.classList.remove("active"));
+                    btn.classList.add("active");
+                    currentDay = btn.getAttribute("data-day");
+                    daySubtitle.textContent = subtitles[currentDay] || "Campus Schedule";
+                    searchInput.value = "";
+                    filterTimeline();
+                });
+            });
+
+            searchInput.addEventListener("input", filterTimeline);
+
+            // Modal functionality
+            const modal = document.getElementById("sessionModal");
+            const modalClose = document.getElementById("modalClose");
+            const modalTitle = document.getElementById("modalTitle");
+            const modalCategory = document.getElementById("modalCategory");
+            const modalTime = document.getElementById("modalTime");
+            const modalVenue = document.getElementById("modalVenue");
+            const modalEligibility = document.getElementById("modalEligibility");
+            const modalDesc = document.getElementById("modalDesc");
+            const confirmBtn = document.getElementById("confirmRsvpBtn");
+            const statusMsg = document.getElementById("statusMsg");
+
+            document.querySelectorAll(".action-btn").forEach(btn => {
+                btn.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    modalTitle.textContent = btn.dataset.title;
+                    modalCategory.textContent = btn.dataset.category;
+                    modalTime.textContent = btn.dataset.time;
+                    modalVenue.textContent = btn.dataset.venue;
+                    modalEligibility.textContent = btn.dataset.eligibility;
+                    modalDesc.textContent = btn.dataset.desc;
+
+                    statusMsg.style.display = "none";
+                    confirmBtn.disabled = false;
+                    confirmBtn.innerHTML = 'Confirm Seat / Add to Calendar <i class="bi bi-check2-circle"></i>';
+                    
+                    modal.classList.add("open");
+                });
+            });
+
+            confirmBtn.addEventListener("click", () => {
+                confirmBtn.disabled = true;
+                confirmBtn.innerHTML = 'Reserved <i class="bi bi-check-all"></i>';
+                statusMsg.style.display = "block";
+            });
+
+            modalClose.addEventListener("click", () => {
+                modal.classList.remove("open");
+            });
+
+            modal.addEventListener("click", (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove("open");
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
